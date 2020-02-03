@@ -128,19 +128,25 @@ public class FrontControllerForApp {
 	static String mailsubject = " RUSA Login Credentials ";
 
 	@RequestMapping(value = { "/updateToken" }, method = RequestMethod.POST)
-	public @ResponseBody Info updateToken(@RequestParam("regId") String regId, @RequestParam("token") String token) {
+	public @ResponseBody Info updateToken(@RequestParam("regId") int regId, @RequestParam("token") String token) {
 
 		Info errorMessage = new Info();
 
 		try {
 
-			int update = registrationRepo.clearToken(regId, token);
+			Info info = checkToken(token, regId);
+			if (info.isError() == false) {
+				int update = registrationRepo.clearToken(regId, "");
 
-			if (update >= 1) {
-				errorMessage.setMsg("Token Updated");
-				errorMessage.setError(false);
+				if (update >= 1) {
+					errorMessage.setMsg("Token Updated");
+					errorMessage.setError(false);
+				} else {
+					errorMessage.setMsg("failed to update");
+					errorMessage.setError(true);
+				}
 			} else {
-				errorMessage.setMsg("failed to update");
+				errorMessage.setMsg("Unauthorized User");
 				errorMessage.setError(true);
 			}
 
@@ -170,6 +176,7 @@ public class FrontControllerForApp {
 
 				Registration reg = registrationRepo.findByRegIdAndDelStatus(getContactList.getRegId(), 1);
 				registrationList.setUserPassword(reg.getUserPassword());
+				registrationList.setExVar2(token);
 				registrationList = registrationRepo.save(getContactList);
 				registrationList.setUserPassword("");
 				registrationList.setSmsCode("");
@@ -896,11 +903,10 @@ public class FrontControllerForApp {
 			@RequestParam("mobileNumber") String mobileNumber) {
 
 		// User user = new User();
-		Registration regResponse = new Registration(); 
+		Registration regResponse = new Registration();
 		Info info1 = new Info();
 		try {
 
-			 
 			regResponse = registrationRepo.forgetPassword(email, mobileNumber);
 
 			if (regResponse != null) {
@@ -928,7 +934,7 @@ public class FrontControllerForApp {
 
 				RestTemplate restTemplate = new RestTemplate();
 				MultiValueMap<String, Object> map = new LinkedMultiValueMap<String, Object>();
- 
+
 				map = new LinkedMultiValueMap<String, Object>();
 				map.add("username", "rusamah-wb");
 				map.add("password", "Rus@@123456");
@@ -941,12 +947,12 @@ public class FrontControllerForApp {
 						String.class);
 
 				if (info1 != null) {
-					int updateDate = registrationRepo.updatePassword(hashtext, regResponse.getUserUuid()); 
+					int updateDate = registrationRepo.updatePassword(hashtext, regResponse.getUserUuid());
 					info1.setError(false);
 					info1.setMsg("Password Updated ");
 				}
 			} else {
-				 
+
 				info1.setError(true);
 				info1.setMsg("Invalid Credencials");
 			}
@@ -958,7 +964,7 @@ public class FrontControllerForApp {
 		} catch (Exception e) {
 
 			System.err.println("Exce in getSection @MasterController " + e.getMessage());
-			e.printStackTrace(); 
+			e.printStackTrace();
 			info1.setError(true);
 			info1.setMsg("Invalid Credencials");
 
@@ -996,112 +1002,111 @@ public class FrontControllerForApp {
 		}
 		return secSaveResponse;
 	}
-	
+
 	// ==========================================Android=======================================================//
-		public static String path1 = "/opt/tomcat/webapps/mediarusa/pdf/";
-		public static String path2 = "/opt/tomcat/webapps/mediarusa/userdocument/";
+	public static String path1 = "/opt/tomcat/webapps/mediarusa/pdf/";
+	public static String path2 = "/opt/tomcat/webapps/mediarusa/userdocument/";
 
-		@RequestMapping(value = { "/docUpload" }, method = RequestMethod.POST)
-		public @ResponseBody Info docUpload(@RequestParam("file") MultipartFile uploadfile,
-				@RequestParam("docName") String docName, @RequestParam("type") String type) {
+	@RequestMapping(value = { "/docUpload" }, method = RequestMethod.POST)
+	public @ResponseBody Info docUpload(@RequestParam("file") MultipartFile uploadfile,
+			@RequestParam("docName") String docName, @RequestParam("type") String type) {
 
-			// System.err.println(" no of files to push " + uploadfile.length);
-			Info info = new Info();
+		// System.err.println(" no of files to push " + uploadfile.length);
+		Info info = new Info();
 
-			try {
+		try {
 
-				info = saveUploadedFiles(uploadfile, docName, type);
+			info = saveUploadedFiles(uploadfile, docName, type);
 
-			} catch (IOException e) {
+		} catch (IOException e) {
 
-				e.printStackTrace();
+			e.printStackTrace();
+			info.setError(true);
+			info.setMsg("File upload failed");
+		}
+
+		return info;
+	}
+
+	@RequestMapping(value = { "/docUploadForApp" }, method = RequestMethod.POST)
+	public @ResponseBody InfoNew docUploadForApp(@RequestParam("regId") int regId,
+			@RequestParam("file") MultipartFile uploadfile, @RequestParam("docName") String docName,
+			@RequestParam("type") String type, @RequestParam("token") String token) {
+
+		// System.err.println(" no of files to push " + uploadfile.length);
+		InfoNew info = new InfoNew();
+
+		try {
+			Info info1 = checkToken(token, regId);
+			if (info1.isError() == false) {
+
+				info1 = saveUploadedFiles(uploadfile, docName, type);
+				info.setError(info1.isError());
+				info.setMsg(info1.getMsg());
+			} else {
+				info.setRetmsg("Unauthorized User");
 				info.setError(true);
 				info.setMsg("File upload failed");
 			}
+		} catch (IOException e) {
 
-			return info;
+			e.printStackTrace();
+			info.setRetmsg("Not Found");
+			info.setError(true);
+			info.setMsg("File upload failed");
 		}
 
-		@RequestMapping(value = { "/docUploadForApp" }, method = RequestMethod.POST)
-		public @ResponseBody InfoNew docUploadForApp(@RequestParam("regId") int regId,
-				@RequestParam("file") MultipartFile uploadfile, @RequestParam("docName") String docName,
-				@RequestParam("type") String type, @RequestParam("token") String token) {
+		return info;
+	}
 
-			// System.err.println(" no of files to push " + uploadfile.length);
-			InfoNew info = new InfoNew();
+	public Info saveUploadedFiles(MultipartFile file, String imageName, String type) throws IOException {
 
-			try {
-				Info info1 = checkToken(token, regId);
-				if (info1.isError() == false) {
+		Info info = new Info();
 
-					 
-					info1 = saveUploadedFiles(uploadfile, docName, type);
-					info.setError(info1.isError());
-					info.setMsg(info1.getMsg());
-				} else {
-					info.setRetmsg("Unauthorized User");
-					info.setError(true);
-					info.setMsg("File upload failed");
-				}
-			} catch (IOException e) {
+		try {
+			Path path = null;
+			String[] DocValues = { "txt", "doc", "pdf", "xls", ".ppt", ".pptx" };
+			String[] files = { "pdf", "xlsx", "csv", "docx", "jpg", "jpeg", "gif", "png", "JPG", "JPEG", "GIF", "PNG" };
+			byte[] bytes = file.getBytes();
+			String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 
-				e.printStackTrace();
-				info.setRetmsg("Not Found");
-				info.setError(true);
-				info.setMsg("File upload failed");
-			}
+			// System.out.println("Inside Image Type =1");
 
-			return info;
-		}
-
-		public Info saveUploadedFiles(MultipartFile file, String imageName, String type) throws IOException {
-
-			Info info = new Info();
-
-			try {
-				Path path = null;
-				String[] DocValues = { "txt", "doc", "pdf", "xls", ".ppt", ".pptx" };
-				String[] files = { "pdf", "xlsx", "csv", "docx", "jpg", "jpeg", "gif", "png", "JPG", "JPEG", "GIF", "PNG" };
-				byte[] bytes = file.getBytes();
-				String extension = FilenameUtils.getExtension(file.getOriginalFilename());
-
-				// System.out.println("Inside Image Type =1");
-
-				if (type.equalsIgnoreCase("1")) {
-					if (ArrayUtils.contains(DocValues, extension.toLowerCase())) {
-						path = Paths.get(path1 + imageName);
-						Files.write(path, bytes);
-						info.setError(false);
-						info.setMsg("File Upload Successfully");
-					} else {
-						info.setError(true);
-						info.setMsg("File Uploading Error");
-					}
-
-				} else if (type.equalsIgnoreCase("2")) {
-
-					if (ArrayUtils.contains(files, extension.toLowerCase())) {
-						path = Paths.get(path2 + imageName);
-						Files.write(path, bytes);
-						info.setError(false);
-						info.setMsg("File Upload Successfully");
-					} else {
-						info.setError(true);
-						info.setMsg("File Uploading Error");
-					}
-
+			if (type.equalsIgnoreCase("1")) {
+				if (ArrayUtils.contains(DocValues, extension.toLowerCase())) {
+					path = Paths.get(path1 + imageName);
+					Files.write(path, bytes);
+					info.setError(false);
+					info.setMsg("File Upload Successfully");
 				} else {
 					info.setError(true);
 					info.setMsg("File Uploading Error");
 				}
 
-			} catch (Exception e) {
+			} else if (type.equalsIgnoreCase("2")) {
+
+				if (ArrayUtils.contains(files, extension.toLowerCase())) {
+					path = Paths.get(path2 + imageName);
+					Files.write(path, bytes);
+					info.setError(false);
+					info.setMsg("File Upload Successfully");
+				} else {
+					info.setError(true);
+					info.setMsg("File Uploading Error");
+				}
+
+			} else {
 				info.setError(true);
 				info.setMsg("File Uploading Error");
-				e.printStackTrace();
 			}
 
-			return info;
+		} catch (Exception e) {
+			info.setError(true);
+			info.setMsg("File Uploading Error");
+			e.printStackTrace();
 		}
+
+		return info;
+	}
 
 }

@@ -142,7 +142,7 @@ public interface RegistrationRepo extends JpaRepository<Registration, Integer>{
 	@Transactional
 	@Modifying
 	@Query("update Registration set ex_var2=:a WHERE reg_id=:regId")
-	int clearToken(String regId,String a);
+	int clearToken(int regId,String a);
 	
 }
 
