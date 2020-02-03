@@ -164,38 +164,36 @@ public class FrontControllerForApp {
 	}
 
 	@RequestMapping(value = { "/saveRegistrationForApp" }, method = RequestMethod.POST)
-	public @ResponseBody Registration saveRegistrationForApp(@RequestBody Registration getContactList,
+	public @ResponseBody Info saveRegistrationForApp(@RequestBody Registration regBody,
 			@RequestParam("token") String token) {
 
-		Registration registrationList = new Registration();
+		Info info = new Info();
 		try {
 
-			Info info = checkToken(token, getContactList.getRegId());
+			Info info1 = checkToken(token, regBody.getRegId());
 
-			if (info.isError() == false) {
+			if (info1.isError() == false) {
 
-				Registration reg = registrationRepo.findByRegIdAndDelStatus(getContactList.getRegId(), 1);
-				registrationList.setUserPassword(reg.getUserPassword());
-				registrationList.setExVar2(token);
-				registrationList = registrationRepo.save(getContactList);
-				registrationList.setUserPassword("");
-				registrationList.setSmsCode("");
-				registrationList.setExVar2("");
+				//Registration reg = registrationRepo.findByRegIdAndDelStatus(getContactList.getRegId(), 1);
+				 
+				int update = registrationRepo.updateInfo(regBody.getAlternateEmail(),regBody.getDesignationName(),regBody.getDepartmentName(),regBody.getAuthorizedPerson(),
+						regBody.getRegId());
+				 
 
-				registrationList.setError(false);
-				registrationList.setMsg("Record Saved");
+				info.setError(false);
+				info.setMsg("Record Saved");
 			} else {
-				registrationList.setError(true);
-				registrationList.setMsg("Unauthorized User");
+				info.setError(true);
+				info.setMsg("Unauthorized User");
 			}
 
 		} catch (Exception e) {
-			registrationList = new Registration();
+			 
 			e.printStackTrace();
-			registrationList.setError(true);
-			registrationList.setMsg("Failed To Save");
+			info.setError(true);
+			info.setMsg("Failed To Save");
 		}
-		return registrationList;
+		return info;
 
 	}
 

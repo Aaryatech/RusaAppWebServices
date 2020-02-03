@@ -143,6 +143,12 @@ public interface RegistrationRepo extends JpaRepository<Registration, Integer>{
 	@Modifying
 	@Query("update Registration set ex_var2=:a WHERE reg_id=:regId")
 	int clearToken(int regId,String a);
+
+	@Transactional
+	@Modifying
+	@Query("update Registration set alternate_email=:alternateEmail,designation_name=:designationName,department_name=:departmentName,"
+			+ " authorized_person=:authorizedPerson  WHERE reg_id=:regId") 
+	int updateInfo(String alternateEmail, String designationName, String departmentName, String authorizedPerson, int regId);
 	
 }
 
