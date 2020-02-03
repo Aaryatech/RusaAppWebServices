@@ -2,6 +2,9 @@ package com.ats.rusawebapi.controller;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -9,6 +12,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -19,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.ats.rusawebapi.EmailUtility;
 import com.ats.rusawebapi.RandomString;
@@ -886,44 +892,15 @@ public class FrontControllerForApp {
 	}
 
 	@RequestMapping(value = { "/forgetPasswordForApp" }, method = RequestMethod.POST)
-	public @ResponseBody Registration forgetPasswordForApp(@RequestParam("email") String email,
+	public @ResponseBody Info forgetPasswordForApp(@RequestParam("email") String email,
 			@RequestParam("mobileNumber") String mobileNumber) {
 
 		// User user = new User();
-		Registration regResponse = new Registration();
-
-		Info info1 = null;
+		Registration regResponse = new Registration(); 
+		Info info1 = new Info();
 		try {
 
-			// user = userRepo.findByUserNameAndUserPassAndDelStatus(userName,password, 1);
-
-			/*
-			 * regResponse = registrationRepo.
-			 * findByEmailsAndMobileNumberAndDelStatusAndEmailVerifiedAndIsActive(email,
-			 * mobileNumber, 1, 1, 1);
-			 * 
-			 * if (regResponse != null) {
-			 * 
-			 * Date date = new Date(); // your date SimpleDateFormat sf = new
-			 * SimpleDateFormat("yyyy-MM-dd"); Calendar cal = Calendar.getInstance();
-			 * cal.setTime(date);
-			 * 
-			 * String password = Commons.getAlphaNumericString(5);
-			 * 
-			 * regResponse.setUserPassword(password);
-			 * regResponse.setEditDate(sf.format(date));
-			 * registrationRepo.saveAndFlush(regResponse); System.out.println("save"); info1
-			 * = EmailUtility.sendEmail(senderEmail, senderPassword, email, mailsubject,
-			 * regResponse.getName(), regResponse.getUserPassword()); if (info1 != null) {
-			 * int updateDate = registrationRepo.updatePassword(password,
-			 * regResponse.getUserUuid()); System.out.println(" update ragistration table :"
-			 * + updateDate); regResponse.setError(false);
-			 * regResponse.setMsg("Password Updated "); } }
-			 * 
-			 * if (regResponse == null) { regResponse = new Registration();
-			 * regResponse.setError(true); regResponse.setMsg("Invalid Credencials"); }
-			 */
-
+			 
 			regResponse = registrationRepo.forgetPassword(email, mobileNumber);
 
 			if (regResponse != null) {
@@ -951,19 +928,7 @@ public class FrontControllerForApp {
 
 				RestTemplate restTemplate = new RestTemplate();
 				MultiValueMap<String, Object> map = new LinkedMultiValueMap<String, Object>();
-
-				/*
-				 * map.add("senderID", "RUSAMH"); map.add("user",
-				 * "spdrusamah@gmail.com:Cyber@mva"); map.add("receipientno",
-				 * regResponse.getMobileNumber()); map.add("dcs", "0"); map.add("msgtxt",
-				 * "Your Username " + regResponse.getEmails() + "\n Password " +
-				 * regResponse.getUserPassword() + "\n don't share with any one.");
-				 * map.add("state", "4");
-				 * 
-				 * String response = restTemplate.postForObject(
-				 * "http://api.mVaayoo.com/mvaayooapi/MessageCompose", map, String.class);
-				 */
-
+ 
 				map = new LinkedMultiValueMap<String, Object>();
 				map.add("username", "rusamah-wb");
 				map.add("password", "Rus@@123456");
@@ -976,15 +941,14 @@ public class FrontControllerForApp {
 						String.class);
 
 				if (info1 != null) {
-					int updateDate = registrationRepo.updatePassword(hashtext, regResponse.getUserUuid());
-					System.out.println(" update ragistration table :" + updateDate);
-					regResponse.setError(false);
-					regResponse.setMsg("Password Updated ");
+					int updateDate = registrationRepo.updatePassword(hashtext, regResponse.getUserUuid()); 
+					info1.setError(false);
+					info1.setMsg("Password Updated ");
 				}
 			} else {
-				regResponse = new Registration();
-				regResponse.setError(true);
-				regResponse.setMsg("Invalid Credencials");
+				 
+				info1.setError(true);
+				info1.setMsg("Invalid Credencials");
 			}
 
 			regResponse.setUserPassword("");
@@ -994,14 +958,13 @@ public class FrontControllerForApp {
 		} catch (Exception e) {
 
 			System.err.println("Exce in getSection @MasterController " + e.getMessage());
-			e.printStackTrace();
-			regResponse = new Registration();
-			regResponse.setError(true);
-			regResponse.setMsg("Invalid Credencials");
+			e.printStackTrace(); 
+			info1.setError(true);
+			info1.setMsg("Invalid Credencials");
 
 			e.printStackTrace();
 		}
-		return regResponse;
+		return info1;
 
 	}
 
@@ -1033,5 +996,112 @@ public class FrontControllerForApp {
 		}
 		return secSaveResponse;
 	}
+	
+	// ==========================================Android=======================================================//
+		public static String path1 = "/opt/tomcat/webapps/mediarusa/pdf/";
+		public static String path2 = "/opt/tomcat/webapps/mediarusa/userdocument/";
+
+		@RequestMapping(value = { "/docUpload" }, method = RequestMethod.POST)
+		public @ResponseBody Info docUpload(@RequestParam("file") MultipartFile uploadfile,
+				@RequestParam("docName") String docName, @RequestParam("type") String type) {
+
+			// System.err.println(" no of files to push " + uploadfile.length);
+			Info info = new Info();
+
+			try {
+
+				info = saveUploadedFiles(uploadfile, docName, type);
+
+			} catch (IOException e) {
+
+				e.printStackTrace();
+				info.setError(true);
+				info.setMsg("File upload failed");
+			}
+
+			return info;
+		}
+
+		@RequestMapping(value = { "/docUploadForApp" }, method = RequestMethod.POST)
+		public @ResponseBody InfoNew docUploadForApp(@RequestParam("regId") int regId,
+				@RequestParam("file") MultipartFile uploadfile, @RequestParam("docName") String docName,
+				@RequestParam("type") String type, @RequestParam("token") String token) {
+
+			// System.err.println(" no of files to push " + uploadfile.length);
+			InfoNew info = new InfoNew();
+
+			try {
+				Info info1 = checkToken(token, regId);
+				if (info1.isError() == false) {
+
+					 
+					info1 = saveUploadedFiles(uploadfile, docName, type);
+					info.setError(info1.isError());
+					info.setMsg(info1.getMsg());
+				} else {
+					info.setRetmsg("Unauthorized User");
+					info.setError(true);
+					info.setMsg("File upload failed");
+				}
+			} catch (IOException e) {
+
+				e.printStackTrace();
+				info.setRetmsg("Not Found");
+				info.setError(true);
+				info.setMsg("File upload failed");
+			}
+
+			return info;
+		}
+
+		public Info saveUploadedFiles(MultipartFile file, String imageName, String type) throws IOException {
+
+			Info info = new Info();
+
+			try {
+				Path path = null;
+				String[] DocValues = { "txt", "doc", "pdf", "xls", ".ppt", ".pptx" };
+				String[] files = { "pdf", "xlsx", "csv", "docx", "jpg", "jpeg", "gif", "png", "JPG", "JPEG", "GIF", "PNG" };
+				byte[] bytes = file.getBytes();
+				String extension = FilenameUtils.getExtension(file.getOriginalFilename());
+
+				// System.out.println("Inside Image Type =1");
+
+				if (type.equalsIgnoreCase("1")) {
+					if (ArrayUtils.contains(DocValues, extension.toLowerCase())) {
+						path = Paths.get(path1 + imageName);
+						Files.write(path, bytes);
+						info.setError(false);
+						info.setMsg("File Upload Successfully");
+					} else {
+						info.setError(true);
+						info.setMsg("File Uploading Error");
+					}
+
+				} else if (type.equalsIgnoreCase("2")) {
+
+					if (ArrayUtils.contains(files, extension.toLowerCase())) {
+						path = Paths.get(path2 + imageName);
+						Files.write(path, bytes);
+						info.setError(false);
+						info.setMsg("File Upload Successfully");
+					} else {
+						info.setError(true);
+						info.setMsg("File Uploading Error");
+					}
+
+				} else {
+					info.setError(true);
+					info.setMsg("File Uploading Error");
+				}
+
+			} catch (Exception e) {
+				info.setError(true);
+				info.setMsg("File Uploading Error");
+				e.printStackTrace();
+			}
+
+			return info;
+		}
 
 }
