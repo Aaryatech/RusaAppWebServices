@@ -184,34 +184,34 @@ public class FrondEndRestApi {
 
 	@Autowired
 	RegistrationRepo registrationRepo;
-	
+
 	@Autowired
 	NewsDetailsRepository newsDetailRepo;
-	
+
 	@Autowired
 	BannerImagesRepository bannerImagesRepo;
-	
+
 	@Autowired
 	CmsSearchDataRepository cmsPageDescRepository;
 
 	@Autowired
 	ImageLinkRepository imageLinkRepo;
-	
+
 	@Autowired
 	EventRegisterRepository eventRegRepo;
-	
+
 	@Autowired
 	ContactUsRepo contactUsRepo;
-	
-	@Autowired 
+
+	@Autowired
 	GetCategoryRepo getGetCategoryRepo;
-	
+
 	@Autowired
 	SocialChannelRepository socialDetailRepo;
-	
+
 	@Autowired
 	LogoRepository LogoRepo;
-	
+
 	@RequestMapping(value = { "/getTopMenuList" }, method = RequestMethod.POST)
 	public @ResponseBody TopMenuList getTopMenuList(@RequestParam("langId") int langId,
 			@RequestParam("type") List<Integer> type) {
@@ -238,7 +238,7 @@ public class FrondEndRestApi {
 		return topMenuList;
 
 	}
-	
+
 	@RequestMapping(value = { "/getDataBySlugName" }, method = RequestMethod.POST)
 	public @ResponseBody PageContent getDataBySlugName(@RequestParam("slugName") String slugName,
 			@RequestParam("langId") int langId) {
@@ -308,6 +308,7 @@ public class FrondEndRestApi {
 		return pageContent;
 
 	}
+
 	@RequestMapping(value = { "/getLastFourNewsByLangId" }, method = RequestMethod.POST)
 	public @ResponseBody List<NewsDetails> getLastFourNewsByLangId(@RequestParam("langId") int langId) {
 
@@ -324,7 +325,7 @@ public class FrondEndRestApi {
 		return list;
 
 	}
-	
+
 	@RequestMapping(value = { "/getAllHomeData" }, method = RequestMethod.POST)
 	public @ResponseBody HomeData getAllHomeData(@RequestParam("langId") int langId) {
 
@@ -337,15 +338,13 @@ public class FrondEndRestApi {
 			homeData.setCmsList(getCMSDescByExInt1(langId));
 			homeData.setNewsList(getLastFourNewsByLangId(langId));
 			homeData.setTestimonialList(getLastFiveTestImonials(langId));
-			
+
 			try {
-				
-			}catch(Exception e) {
+
+			} catch (Exception e) {
 				homeData.setLogoData(getLogoListById(1));
 				homeData.setSocialList(getAllSocialList());
 			}
-			
-			
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -353,7 +352,7 @@ public class FrondEndRestApi {
 
 		return homeData;
 	}
-	
+
 	@RequestMapping(value = { "/getLogoListById" }, method = RequestMethod.POST)
 	public @ResponseBody Logo getLogoListById(@RequestParam("id") int id) {
 
@@ -371,7 +370,7 @@ public class FrondEndRestApi {
 		}
 		return logoSaveResponse;
 	}
-	
+
 	@RequestMapping(value = { "/getAllSocialList" }, method = RequestMethod.GET)
 	public @ResponseBody List<SocialChannels> getAllSocialList() {
 
@@ -389,7 +388,7 @@ public class FrondEndRestApi {
 		return conList;
 
 	}
-	
+
 	@RequestMapping(value = { "/getLastTenVideos" }, method = RequestMethod.GET)
 	public @ResponseBody List<GallaryDetail> getLastTenVideos() {
 		List<GallaryDetail> secSaveResponse = new ArrayList<GallaryDetail>();
@@ -403,7 +402,7 @@ public class FrondEndRestApi {
 		}
 		return secSaveResponse;
 	}
-	
+
 	@RequestMapping(value = { "/getLastTenPhotos" }, method = RequestMethod.GET)
 	public @ResponseBody List<GallaryDetail> getLastTenPhotos() {
 		List<GallaryDetail> secSaveResponse = new ArrayList<GallaryDetail>();
@@ -417,7 +416,7 @@ public class FrondEndRestApi {
 		}
 		return secSaveResponse;
 	}
-	
+
 	@RequestMapping(value = { "/getLastSliderImagesByStatus" }, method = RequestMethod.POST)
 	public @ResponseBody BannerImages getLastSliderImagesByStatus(@RequestParam("langId") int langId) {
 
@@ -432,7 +431,7 @@ public class FrondEndRestApi {
 		}
 		return secSaveResponse;
 	}
-	
+
 	@RequestMapping(value = { "/getCMSDescByExInt1" }, method = RequestMethod.POST)
 	public @ResponseBody List<CmsSearchData> getCMSDescByExInt1(@RequestParam("langId") int langId) {
 		List<CmsSearchData> secSaveResponse = new ArrayList<CmsSearchData>();
@@ -446,7 +445,7 @@ public class FrondEndRestApi {
 		}
 		return secSaveResponse;
 	}
-	
+
 	@RequestMapping(value = { "/getLastFiveTestImonials" }, method = RequestMethod.POST)
 	public @ResponseBody List<TestImonial> getLastFiveTestImonials(@RequestParam("langId") int langId) {
 		List<TestImonial> secSaveResponse = new ArrayList<TestImonial>();
@@ -460,8 +459,7 @@ public class FrondEndRestApi {
 		}
 		return secSaveResponse;
 	}
-	
-	
+
 	@RequestMapping(value = { "/getAllImageLinkList" }, method = RequestMethod.GET)
 	public @ResponseBody List<ImageLink> getAllImageLinkList() {
 
@@ -479,7 +477,7 @@ public class FrondEndRestApi {
 		return imagesList;
 
 	}
-	
+
 	@RequestMapping(value = { "/getAllUpcomingEvents" }, method = RequestMethod.POST)
 	public @ResponseBody List<NewsDetails> getAllUpcomingEvents(@RequestParam("langId") int langId) {
 		List<NewsDetails> secSaveResponse = new ArrayList<NewsDetails>();
@@ -493,7 +491,7 @@ public class FrondEndRestApi {
 		}
 		return secSaveResponse;
 	}
-	
+
 	@RequestMapping(value = { "/getAllPreviousEvents" }, method = RequestMethod.POST)
 	public @ResponseBody List<NewsDetails> getAllPreviousEvents(@RequestParam("langId") int langId) {
 		List<NewsDetails> secSaveResponse = new ArrayList<NewsDetails>();
@@ -507,7 +505,7 @@ public class FrondEndRestApi {
 		}
 		return secSaveResponse;
 	}
-	 
+
 	@RequestMapping(value = { "/saveContactUs" }, method = RequestMethod.POST)
 	public @ResponseBody ContactUs saveContactUs(@RequestBody ContactUs getContactList) {
 
@@ -527,7 +525,7 @@ public class FrondEndRestApi {
 		return ContactUsList;
 
 	}
-	
+
 	@RequestMapping(value = { "/getAllCatIdBySectionIdOrderByDesc" }, method = RequestMethod.POST)
 	public @ResponseBody List<GetCategory> getAllCatIdBySectionIdOrderByDesc(@RequestParam("sectionId") int sectionId) {
 
@@ -546,7 +544,7 @@ public class FrondEndRestApi {
 		return catList1;
 
 	}
-	
+
 	@RequestMapping(value = { "/getImages" }, method = RequestMethod.POST)
 	public @ResponseBody PageContent getImages(@RequestParam("slugName") String slugName,
 			@RequestParam("langId") int langId) {
@@ -594,7 +592,7 @@ public class FrondEndRestApi {
 		return pageContent;
 
 	}
- 
+
 	@RequestMapping(value = { "/checkUniqueField" }, method = RequestMethod.POST)
 	public @ResponseBody Info checkUniqueField(@RequestParam String inputValue, @RequestParam int valueType,
 			@RequestParam int primaryKey) {
@@ -647,7 +645,7 @@ public class FrondEndRestApi {
 		}
 		return secSaveResponse;
 	}
-	
+
 	@RequestMapping(value = { "/getAllRegisteredEvents" }, method = RequestMethod.GET)
 	public @ResponseBody List<EventRegistration> getAllRegisteredEvents() {
 		List<EventRegistration> secSaveResponse = new ArrayList<EventRegistration>();
@@ -661,7 +659,7 @@ public class FrondEndRestApi {
 		}
 		return secSaveResponse;
 	}
-	
+
 	@RequestMapping(value = { "/getCategoryListWithImageCount" }, method = RequestMethod.POST)
 	public @ResponseBody List<CategoryListWithContentCount> getCategoryListWithImageCount(
 			@RequestParam("sectionId") int sectionId, @RequestParam("langId") int langId) {
@@ -680,7 +678,7 @@ public class FrondEndRestApi {
 		return list;
 
 	}
-	
+
 	@RequestMapping(value = { "/newsExpiredListForHomePage" }, method = RequestMethod.POST)
 	public @ResponseBody List<NewsDetails> newsExpiredListForHomePage(@RequestParam("langId") int langId) {
 		List<NewsDetails> secSaveResponse = new ArrayList<NewsDetails>();
@@ -696,7 +694,7 @@ public class FrondEndRestApi {
 		}
 		return secSaveResponse;
 	}
-	
+
 	@RequestMapping(value = { "/getUniversityList" }, method = RequestMethod.GET)
 	public @ResponseBody List<University> getUniversityList() {
 
@@ -714,7 +712,7 @@ public class FrondEndRestApi {
 		return list;
 
 	}
-	
+
 	@RequestMapping(value = { "/getInstituteListByUniversityId" }, method = RequestMethod.POST)
 	public @ResponseBody List<InstituteInfo> getInstituteListByUniversityId(@RequestParam("uniId") int uniId) {
 
@@ -732,7 +730,7 @@ public class FrondEndRestApi {
 		return list;
 
 	}
-	
+
 	@RequestMapping(value = { "/getInstituteInfoById" }, method = RequestMethod.POST)
 	public @ResponseBody InstituteInfo getInstituteInfoById(@RequestParam("instiId") int instiId) {
 
@@ -754,7 +752,7 @@ public class FrondEndRestApi {
 		return instituteInfo;
 
 	}
-	
+
 	@RequestMapping(value = { "/getDocTypeList" }, method = RequestMethod.GET)
 	public @ResponseBody List<DocType> getDocTypeList() {
 
@@ -772,6 +770,7 @@ public class FrondEndRestApi {
 		return list;
 
 	}
+
 	@RequestMapping(value = { "/getInstituteInfoByAsheCode" }, method = RequestMethod.POST)
 	public @ResponseBody InstituteInfo getInstituteInfoByAsheCode(@RequestParam("asheCode") String asheCode) {
 
@@ -799,7 +798,7 @@ public class FrondEndRestApi {
 		return instituteInfo;
 
 	}
-	 
+
 	@RequestMapping(value = { "/checkIsMaintenance" }, method = RequestMethod.GET)
 	public @ResponseBody Maintainance checkIsMaintenance() {
 
@@ -870,7 +869,7 @@ public class FrondEndRestApi {
 		}
 		return calenderList;
 	}
- 
+
 	@RequestMapping(value = { "/allPreviousEventWithAplliedForApp" }, method = RequestMethod.POST)
 	public @ResponseBody List<EventRecord> allPreviousEventWithAplliedForApp(@RequestParam("langId") int langId,
 			@RequestParam("userId") int userId, @RequestParam("token") String token) {
@@ -909,7 +908,7 @@ public class FrondEndRestApi {
 		return newsSectionList;
 
 	}
- 
+
 	@RequestMapping(value = { "/getPrevRecordByRegIdForApp" }, method = RequestMethod.POST)
 	public @ResponseBody PreviousRegRecord getPrevRecordByRegIdForApp(@RequestParam("regId") int regId,
 			@RequestParam("token") String token) {
@@ -957,8 +956,6 @@ public class FrondEndRestApi {
 
 	}
 
-	 
-  
 	@RequestMapping(value = { "/getDocumentByRegIdForApp" }, method = RequestMethod.POST)
 	public @ResponseBody List<UploadDocument> getDocumentByRegId(@RequestParam("regId") int regId,
 			@RequestParam("token") String token) {
@@ -1010,11 +1007,16 @@ public class FrondEndRestApi {
 		Info info = new Info();
 
 		try {
-			Registration res = registrationRepo.findByExVar2AndRegIdAndDelStatus(token, regId, 1);
+			if (!token.isEmpty() && token != null && token != "") {
+				Registration res = registrationRepo.findByExVar2AndRegIdAndDelStatus(token, regId, 1);
 
-			if (res == null) {
-				info.setError(true);
-				info.setMsg("token not matched");
+				if (res == null) {
+					info.setError(true);
+					info.setMsg("token not matched");
+				} else {
+					info.setError(false);
+					info.setMsg("authorized user");
+				}
 			} else {
 				info.setError(false);
 				info.setMsg("authorized user");

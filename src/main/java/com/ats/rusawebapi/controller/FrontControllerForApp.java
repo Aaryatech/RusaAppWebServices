@@ -174,11 +174,11 @@ public class FrontControllerForApp {
 
 			if (info1.isError() == false) {
 
-				//Registration reg = registrationRepo.findByRegIdAndDelStatus(getContactList.getRegId(), 1);
-				 
-				int update = registrationRepo.updateInfo(regBody.getAlternateEmail(),regBody.getDesignationName(),regBody.getDepartmentName(),regBody.getAuthorizedPerson(),
-						regBody.getRegId());
-				 
+				// Registration reg =
+				// registrationRepo.findByRegIdAndDelStatus(getContactList.getRegId(), 1);
+
+				int update = registrationRepo.updateInfo(regBody.getAlternateEmail(), regBody.getDesignationName(),
+						regBody.getDepartmentName(), regBody.getAuthorizedPerson(), regBody.getRegId());
 
 				info.setError(false);
 				info.setMsg("Record Saved");
@@ -188,7 +188,7 @@ public class FrontControllerForApp {
 			}
 
 		} catch (Exception e) {
-			 
+
 			e.printStackTrace();
 			info.setError(true);
 			info.setMsg("Failed To Save");
@@ -398,11 +398,17 @@ public class FrontControllerForApp {
 		Info info = new Info();
 
 		try {
-			Registration res = registrationRepo.findByExVar2AndRegIdAndDelStatus(token, regId, 1);
 
-			if (res == null) {
-				info.setError(true);
-				info.setMsg("token not matched");
+			if (!token.isEmpty() && token != null && token != "") {
+				Registration res = registrationRepo.findByExVar2AndRegIdAndDelStatus(token, regId, 1);
+
+				if (res == null) {
+					info.setError(true);
+					info.setMsg("token not matched");
+				} else {
+					info.setError(false);
+					info.setMsg("authorized user");
+				}
 			} else {
 				info.setError(false);
 				info.setMsg("authorized user");
@@ -1066,12 +1072,14 @@ public class FrontControllerForApp {
 			String[] DocValues = { "txt", "doc", "pdf", "xls", ".ppt", ".pptx" };
 			String[] files = { "pdf", "xlsx", "csv", "docx", "jpg", "jpeg", "gif", "png", "JPG", "JPEG", "GIF", "PNG" };
 			byte[] bytes = file.getBytes();
+			String[] filetypes = file.getOriginalFilename().split("\\.");
+			//System.out.println(filetypes.length);
 			String extension = FilenameUtils.getExtension(file.getOriginalFilename());
-
+			 
 			// System.out.println("Inside Image Type =1");
 
 			if (type.equalsIgnoreCase("1")) {
-				if (ArrayUtils.contains(DocValues, extension.toLowerCase())) {
+				if (ArrayUtils.contains(DocValues, extension.toLowerCase()) && filetypes.length == 2) {
 					path = Paths.get(path1 + imageName);
 					Files.write(path, bytes);
 					info.setError(false);
@@ -1083,7 +1091,7 @@ public class FrontControllerForApp {
 
 			} else if (type.equalsIgnoreCase("2")) {
 
-				if (ArrayUtils.contains(files, extension.toLowerCase())) {
+				if (ArrayUtils.contains(files, extension.toLowerCase()) && filetypes.length == 2) {
 					path = Paths.get(path2 + imageName);
 					Files.write(path, bytes);
 					info.setError(false);
