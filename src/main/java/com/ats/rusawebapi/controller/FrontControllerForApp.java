@@ -127,6 +127,24 @@ public class FrontControllerForApp {
 	static String senderPassword = "atsinfosoft@123";
 	static String mailsubject = " RUSA Login Credentials ";
 
+	@RequestMapping(value = { "/tokenConfirmation" }, method = RequestMethod.POST)
+	public @ResponseBody Info tokenConfirmation(@RequestParam("regId") int regId, @RequestParam("token") String token) {
+
+		Info info = new Info();
+
+		try {
+
+			info = checkToken(token, regId);
+
+		} catch (Exception e) {
+
+			e.printStackTrace();
+
+		}
+		return info;
+
+	}
+
 	@RequestMapping(value = { "/updateToken" }, method = RequestMethod.POST)
 	public @ResponseBody Info updateToken(@RequestParam("regId") int regId, @RequestParam("token") String token) {
 
@@ -399,7 +417,7 @@ public class FrontControllerForApp {
 
 		try {
 
-			if (!token.isEmpty() && token != "") {
+			if (!token.trim().isEmpty() && token.trim() != "") {
 				Registration res = registrationRepo.findByExVar2AndRegIdAndDelStatus(token, regId, 1);
 
 				if (res == null) {
@@ -1073,9 +1091,9 @@ public class FrontControllerForApp {
 			String[] files = { "pdf", "xlsx", "csv", "docx", "jpg", "jpeg", "gif", "png", "JPG", "JPEG", "GIF", "PNG" };
 			byte[] bytes = file.getBytes();
 			String[] filetypes = file.getOriginalFilename().split("\\.");
-			//System.out.println(filetypes.length);
+			// System.out.println(filetypes.length);
 			String extension = FilenameUtils.getExtension(file.getOriginalFilename());
-			 
+
 			// System.out.println("Inside Image Type =1");
 
 			if (type.equalsIgnoreCase("1")) {

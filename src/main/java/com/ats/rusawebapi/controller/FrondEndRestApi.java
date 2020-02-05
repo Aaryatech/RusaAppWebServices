@@ -1007,7 +1007,7 @@ public class FrondEndRestApi {
 		Info info = new Info();
 
 		try {
-			if (!token.isEmpty() && token != "") {
+			if (!token.trim().isEmpty() && token.trim() != "") {
 				Registration res = registrationRepo.findByExVar2AndRegIdAndDelStatus(token, regId, 1);
 
 				if (res == null) {
