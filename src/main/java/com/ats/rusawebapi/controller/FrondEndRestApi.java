@@ -1007,7 +1007,7 @@ public class FrondEndRestApi {
 		Info info = new Info();
 
 		try {
-			if (!token.isEmpty() && token != null && token != "") {
+			if (!token.isEmpty() && token != "") {
 				Registration res = registrationRepo.findByExVar2AndRegIdAndDelStatus(token, regId, 1);
 
 				if (res == null) {
@@ -1018,8 +1018,8 @@ public class FrondEndRestApi {
 					info.setMsg("authorized user");
 				}
 			} else {
-				info.setError(false);
-				info.setMsg("authorized user");
+				info.setError(true);
+				info.setMsg("Unauthorized User");
 			}
 
 		} catch (Exception e) {

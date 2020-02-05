@@ -399,7 +399,7 @@ public class FrontControllerForApp {
 
 		try {
 
-			if (!token.isEmpty() && token != null && token != "") {
+			if (!token.isEmpty() && token != "") {
 				Registration res = registrationRepo.findByExVar2AndRegIdAndDelStatus(token, regId, 1);
 
 				if (res == null) {
@@ -410,8 +410,8 @@ public class FrontControllerForApp {
 					info.setMsg("authorized user");
 				}
 			} else {
-				info.setError(false);
-				info.setMsg("authorized user");
+				info.setError(true);
+				info.setMsg("Unauthorized User");
 			}
 
 		} catch (Exception e) {
@@ -847,7 +847,7 @@ public class FrontControllerForApp {
 			} else {
 				errorMessage.setRetmsg("Unauthorized User");
 				errorMessage.setError(true);
-				errorMessage.setMsg("Password Correct");
+				errorMessage.setMsg("Unauthorized User");
 			}
 
 		} catch (Exception e) {
@@ -855,7 +855,7 @@ public class FrontControllerForApp {
 			e.printStackTrace();
 			errorMessage.setRetmsg("Not Found");
 			errorMessage.setError(true);
-			errorMessage.setMsg("Password Correct");
+			errorMessage.setMsg("Server Error");
 
 		}
 
